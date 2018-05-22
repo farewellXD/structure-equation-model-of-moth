@@ -1,0 +1,31 @@
+---
+title: "Moth functional traits wit R package cati 20180522"
+output: github_document
+---
+
+
+```{r}
+library(data.table)
+library(cati)
+```
+
+```{r}
+df.Robinson = fread("E:/origin_data/species_data/moth/?????ͺA????_201707_20171126_backup.csv",drop=c(17:27))
+
+```
+
+
+```{r}
+df.Robinson.select =as.data.frame(df.Robinson[1:3940,][Species != "",][`Wing length (mm)` != "" & `Body length (mm)` != "" & Weight != "", ][Coll_data != ""][,.(Coll_data,Species,`Wing length (mm)`,`Body length (mm)`,`Weight`)])
+df.Robinson.select$Weight = as.numeric(df.Robinson.select$Weight)
+
+```
+
+```{r}
+res.moth= Tstats(df.Robinson.select[,3:5],ind.plot = factor(df.Robinson.select[,1]), sp = factor(df.Robinson.select[,2]))
+```
+
+```{r}
+plot(res.moth,type= "bytraits")
+```
+
