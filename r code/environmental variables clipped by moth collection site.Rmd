@@ -12,24 +12,78 @@ the data we needed:
     - TCCIP  
     - A GIS-based environmental database of Taiwan and Penghu islands
 
-```{r setup_packages}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(raster)
 library(rgdal)
+library(rgeos)
+library(sp)
+library(data.table)
 
 ```
 
 
-```{r cars}
-summary(cars)
+```{r moth location}
+
+df_loc = fread('E:/origin_data/species_data/moth/moth_location_information.csv')
+df_loc_selec = df_loc[grep('MCE', df_loc$`Site name`)]
+coords = df_loc_selec[ , c(10, 9)]
+
 ```
 
-## Including Plots
+## convert csv tp point shpfile layer
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r csv conver to shp }
+
+loc = SpatialPointsDataFrame(coords = coords, data = df_loc_selec)
+crs(loc) = "+proj=longlat +datum=WGS84 +no_defs"
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## TCCIP 
+rain & temperature (min and max)
+
+```{r}
+
+```
+
+## shp_NG
+
+```{r}
+
+dsn_ng = 'E:/origin_data/environmental layer/A GIS-based environmental database of Taiwan and Penghu islands'
+shp_ng = readOGR(dsn = dsn_ng, layer = 'TW_Env_500m_T972_2016_v2')
+proj4string(shp_ng) = '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+
+```
+
+## TCCIP
+
+```{r}
+
+
+
+```
+
+## over polygon attribute info to point (Environmental variable of NG)
+
+```{r}
+
+loc = spTransform(loc, crs(shp_ng))
+loc_atr = over(loc, shp_ng[, c(1:100)])
+
+```
+
+## moth location clipped Environmental variable of NG
+
+```{r}
+
+over_buffer = function(point, radius, envir){
+  buffer = gbuffer(point, witdh = buffer)
+  buffer_atr = over(buffer, envir)
+  return (buffer_atr)
+}
+
+```
+
