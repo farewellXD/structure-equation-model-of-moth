@@ -1,0 +1,35 @@
+---
+title: "Environmental variables clipped by moth collected sites"
+output: github_document
+---
+
+### Aim
+using raster & rgdal package function to clip environmental variables information 
+
+the data we needed:  
+1. moth collection sites (GPS)  
+2. environmental layers  
+    - TCCIP  
+    - A GIS-based environmental database of Taiwan and Penghu islands
+
+```{r setup_packages}
+knitr::opts_chunk$set(echo = TRUE)
+library(raster)
+library(rgdal)
+
+```
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
