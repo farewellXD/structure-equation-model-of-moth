@@ -1,0 +1,100 @@
+---
+title: "moth trait of each population distribution"
+output: github_document
+---
+
+## import package
+
+```{r import library}
+
+library(data.table)
+library(ggplot2)
+library(cati)
+
+```
+
+## import data 
+
+```{r}
+df = fread('E:/origin_data/species_data/moth/2015TT&RS_SW_final20180525_MCE_20180529_data_trait_check_final.csv')
+```
+
+## data clean (filter group & species problem)
+
+```{r}
+df_select = df[Group == 'macromoth' & Species != '']
+
+```
+
+## plot (each species population) 
+
+### species population count number
+```{r}
+
+each_spe_num = df_select[, .N, by = Species][order(N)]
+barplot(each_spe_num$N)
+
+```
+
+## each trait of each speceis population 
+
+```{r}
+
+spe_list = unique(df_select$Species)
+
+
+for (i in c(1:length(spe_list))){
+
+sp = df_select[Species == spe_list[i]]
+
+w = ggplot(data = sp, aes(W_length))+
+    geom_histogram(alpha = .8)+
+    geom_density(col=2)+
+    ggtitle(paste0(spe_list[i]))
+
+b = ggplot(data = sp, aes(B_length))+
+    geom_histogram(alpha = .8)+
+    geom_density(col=2)+
+    ggtitle(paste0(spe_list[i]))
+
+fig = ggarrange(w, b, labels = c("A", "B"), ncol = 2, nrow = 1)
+ggsave(paste0('E:/structure-equation-model-of-moth/data_mining/figure/',spe_list[i],'.png'), plot = fig)  
+
+}
+
+```
+
+##  Select the number of population of each species are larger than 30 records
+
+- calculate mean / median / max / min / std /
+- select record >=30 of each species in 13 Sites
+
+
+```{r}
+
+setkey(df_select, Species)
+
+spe_agg = df_select[ ,list(count = .N,
+                           w_mean = mean(W_length, na.rm = TRUE),
+                           w_median = median(W_length, na.rm = TRUE),
+                           w_max = max(W_length, na.rm = TRUE),
+                           w_min = min(W_length, na.rm = TRUE),
+                           w_sd = sd(W_length, na.rm = TRUE),
+                           w_cv = as.double(cv(W_length, na.rm = TRUE, aszero= FALSE)),
+                           b_mean = mean(B_length, na.rm = TRUE),
+                           b_median = median(B_length, na.rm = TRUE),
+                           b_max = max(B_length, na.rm = TRUE),
+                           b_min = min(B_length, na.rm = TRUE),
+                           b_sd = sd(B_length, na.rm = TRUE),
+                           b_cv = as.double(cv(B_length, na.rm = TRUE, aszero= FALSE))), 
+                           by = c('Coll_date','Coll_data', 'Species')]
+
+
+spe_agg_select = spe_agg[count >=10] 
+
+write.csv(file = "E:/structure-equation-model-of-moth/result/csv/spe_agg_select.csv", spe_agg_select, row.names = FALSE)
+
+
+
+
+```

@@ -1,0 +1,59 @@
+---
+title: "Ibuttun data reshape"
+output: github_document
+---
+
+```{r package}
+library(data.table)
+
+
+```
+
+## data import 
+
+```{r}
+setwd('E:/origin_data/environmental layer/ibutton/')
+file_list = list.files()
+col_name = c('DTR', 'Tmax', 'Tmn', 'Tmin')
+
+df_total = data.frame()
+
+for (i in c(1:4)){
+df = fread(file_list[i])
+df = df[-1]
+df = melt(df, id.vars = c('year', 'month', 'day'), value.name = col_name[i])
+
+df$merge_col = paste0(as.character(df$year), as.character(df$month), as.character(df$day), as.character(df$variable))
+
+write.csv(df, paste0(col_name[i],'.csv'))
+
+}
+
+```
+
+## ibutton data modify site ID
+ - site id : "MCE0250", "MCE0500", "MCE0750", "MCE1000", "MCE1250", "MCE1500",  
+             "MCE1750", "MCE2000", "MCE2250", "MCE2500", "MCE2750", "MCE3000", "MCE3250"  
+ - 
+
+```{r }
+
+df = fread('E:/structure-equation-model-of-moth/result/csv/ibutton_data_merge_20150720_20150828.csv')
+
+old = c('布洛灣', '天主堂', '回頭彎', '156K', '144K', '140K', '131K', '126K', '113K', '40K', '35K', 'wulin')
+new = c("MCE0250", "MCE0500", "MCE0750", "MCE1000", "MCE1500",   
+        "MCE1750", "MCE2000", "MCE2250", "MCE2500", "MCE2750", "MCE3000", "MCE3250")
+
+
+
+setDT(df)
+df = df[, Site_ID := factor(variable, levels = old, labels = new)]
+write.csv(df, 'E:/structure-equation-model-of-moth/result/csv/ibutton_data_merge_20150720_20150828.csv', row.names = FALSE)
+
+
+
+
+
+```
+
+

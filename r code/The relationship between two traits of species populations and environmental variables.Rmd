@@ -1,0 +1,47 @@
+---
+title: "The relationship between two traits of species populations and environmental variables"
+output: github_document
+---
+
+```{r import package}
+library(data.table)
+library(piecewiseSEM)
+library(vegan)
+```
+
+```{r}
+Macro_env = fread('E:/structure-equation-model-of-moth/result/csv/Env_variables.csv')
+Micro_env = fread('E:/structure-equation-model-of-moth/result/csv/ibutton_data_merge_20150720_20150828.csv')
+
+spe = fread('E:/structure-equation-model-of-moth/result/csv/spe_agg_select.csv')
+
+spe = spe[, ID_micro := paste0(Coll_date, Coll_data)]
+
+Micor_env = Micro_env[, ID_micro := paste0(year, '0', month, day, Site_ID)]
+
+df_sem = merge(spe, Macro_env, by.x = 'Coll_data', by.y = 'Site_ID', all.x=TRUE)
+df_sem = merge(df_sem, Micro_env, by.x = 'ID_micro', by.y = 'ID_micro', all.x=TRUE)
+
+drop_col = c('ID_micro', 'V1', 'year', 'month', 'day', 'variable', 'Site_ID')
+
+df_sem = df_sem[, (drop_col) :=NULL]
+
+```
+
+## factor add levels
+```{r}
+levels = factor(c("MCE0250", "MCE0500", "MCE0750", "MCE1000", "MCE1250", "MCE1500", "MCE1750",  
+                  "MCE2000", "MCE2250", "MCE2500",  "MCE3000", "MCE3250"))
+
+df_sem$Coll_data = factor(df_sem$Coll_data, levels=levels)
+
+
+```
+
+```{r}
+ggplot(df_sem, aes(factor(df_sem$Coll_data),as.numeric(df_sem$w_median)))+
+         geom_point()
+
+
+```
+

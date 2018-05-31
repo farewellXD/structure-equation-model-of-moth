@@ -41,9 +41,7 @@ crs(loc) = "+proj=longlat +datum=WGS84 +no_defs"
 
 ```
 
-## TCCIP 
-rain & temperature (min and max)
-
+## 
 ```{r}
 
 ```
@@ -58,6 +56,67 @@ proj4string(shp_ng) = '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_
 
 ```
 
+## EarthEnv
+
+```{r}
+
+dsn_Env = 'E:/origin_data/environmental layer/EarthEnv/Habitat heterogeneity'
+
+file_list = grep(list.files(path = dsn_Env), pattern = '.xml', inv = T, value = T)
+
+
+
+
+col_list = c('ENV_Contrast', 'ENV_Correlation', 'ENV_Cv', 'ENV_Dissimilarity','ENV_Entropy', 'ENV_Evenness', 'ENV_Homogeneity', 'ENV_Maximum','ENV_Range', 'ENV_Shannon', 'ENV_Simpson', 'ENV_Std', 'ENV_Uniformity','ENV_Variance')
+
+df_Ear = data.frame(Site_ID = loc$`Site name`)
+                     
+for (i in c(1:length(file_list))){
+
+layer = raster(paste0(dsn_Env,'/', file_list[i]))
+
+loc_atr_Env = as.data.frame(extract(layer, loc))
+
+colnames(loc_atr_Env) = col_list[i]
+
+df_Ear = cbind(df_Ear, loc_atr_Env)
+
+}
+
+```
+
+
+## Consensus land cover
+
+```{r}
+
+dsn_land = 'E:/origin_data/environmental layer/EarthEnv/Consensus land cover'
+
+file_list = grep(list.files(path = dsn_land), pattern = '.xml', inv = T, value = T)
+
+col_list = c('ENV_class_1', 'ENV_class_2', 'ENV_class_3', 'ENV_class_4',
+             'ENV_class_5', 'ENV_class_6', 'ENV_class_7', 'ENV_class_8', 
+             'ENV_class_9', 'ENV_class_10', 'ENV_class_11', 'ENV_class_12'
+             )
+
+df_land = data.frame(Site_ID = loc$`Site name`)
+                     
+for (i in c(1:length(file_list))){
+
+layer = raster(paste0(dsn_land,'/', file_list[i]))
+
+loc_atr_land = as.data.frame(extract(layer, loc, method = 'bilinear'))
+
+colnames(loc_atr_land) = col_list[i]
+
+df_land = cbind(df_land, loc_atr_land)
+
+}
+
+
+```
+
+
 ## TCCIP
 
 ```{r}
@@ -70,8 +129,27 @@ proj4string(shp_ng) = '+proj=tmerc +lat_0=0 +lon_0=121 +k=0.9999 +x_0=250000 +y_
 
 ```{r}
 
+df_NG = data.frame(Site_ID = loc$`Site name`)
+
 loc = spTransform(loc, crs(shp_ng))
-loc_atr = over(loc, shp_ng[, c(1:100)])
+loc_atr_NG = over(loc, shp_ng[, c(1:100)])
+
+df_NG = cbind(df_NG, loc_atr_NG)
+
+```
+
+## merge df_Ear, df_land and df_NG
+
+```{r}
+
+df_Ear = as.data.frame(df_Ear)
+df_land = as.data.frame(df_land)
+df_NG = as.data.frame(df_NG)
+
+df_total = merge(df_Ear, df_land, by = 'Site_ID')
+df_total = merge(df_total, df_NG, by = 'Site_ID')
+
+write.csv(df_total, 'E:/structure-equation-model-of-moth/result/csv/Env_variables.csv')
 
 ```
 
