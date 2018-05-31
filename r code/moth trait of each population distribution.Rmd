@@ -26,8 +26,6 @@ df_select = df[Group == 'macromoth' & Species != '']
 
 ```
 
-## plot (each species population) 
-
 ### species population count number
 ```{r}
 
@@ -75,24 +73,26 @@ ggsave(paste0('E:/structure-equation-model-of-moth/data_mining/figure/',spe_list
 setkey(df_select, Species)
 
 spe_agg = df_select[ ,list(count = .N,
+                           w_var = var(W_length, na.rm = TRUE),
                            w_mean = mean(W_length, na.rm = TRUE),
                            w_median = median(W_length, na.rm = TRUE),
                            w_max = max(W_length, na.rm = TRUE),
                            w_min = min(W_length, na.rm = TRUE),
                            w_sd = sd(W_length, na.rm = TRUE),
                            w_cv = as.double(cv(W_length, na.rm = TRUE, aszero= FALSE)),
+                           b_var = var(B_length, na.rm = TRUE),
                            b_mean = mean(B_length, na.rm = TRUE),
                            b_median = median(B_length, na.rm = TRUE),
                            b_max = max(B_length, na.rm = TRUE),
                            b_min = min(B_length, na.rm = TRUE),
                            b_sd = sd(B_length, na.rm = TRUE),
                            b_cv = as.double(cv(B_length, na.rm = TRUE, aszero= FALSE))), 
-                           by = c('Coll_date','Coll_data', 'Species')]
+                           by = c('Coll_date', 'Species')]
 
 
 spe_agg_select = spe_agg[count >=10] 
 
-write.csv(file = "E:/structure-equation-model-of-moth/result/csv/spe_agg_select.csv", spe_agg_select, row.names = FALSE)
+write.csv(file = "E:/structure-equation-model-of-moth/result/csv/spe_agg_select_without_ele.csv", spe_agg_select, row.names = FALSE)
 
 
 
